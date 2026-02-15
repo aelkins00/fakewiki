@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>FakeWiki — Random Fictional Article Generator</title>
+<title>Encyclopedia — Random Article Generator</title>
 <style>
   body{font-family:Georgia, 'Times New Roman', serif;line-height:1.45;margin:24px;max-width:980px;}
   header{display:flex;align-items:baseline;justify-content:space-between;}
@@ -14,30 +14,29 @@
   .infobox img{width:100%;height:160px;object-fit:cover;background:#ddd;}
   .lead{font-size:18px;margin-bottom:12px;}
   h2{border-bottom:1px solid #ddd;padding-bottom:4px;margin-top:24px;}
+  h3{font-size:16px;margin-top:16px;margin-bottom:8px;}
   footer{margin-top:28px;color:#666;font-size:13px;}
   .citation{color:#555;}
   .button{background:#2a6fdb;color:#fff;border:none;padding:8px 12px;border-radius:4px;cursor:pointer;font-size:14px;}
   .small{font-size:13px;color:#444;}
   .tagline{font-style:italic;color:#444;}
   .citation-ref{color:#2a6fdb;text-decoration:none;}
-  .notice{background:#fff3cd;border:1px solid #ffeeba;padding:8px;margin-bottom:12px;color:#856404;}
   @media (max-width:700px){.infobox{float:none;width:100%;margin:0 0 12px 0;}}
 </style>
 </head>
 <body>
 <header>
   <div>
-    <h1 id="title">FakeWiki</h1>
-    <div class="byline" id="subtitle">A generator of plausible-sounding, fictional Wikipedia-style pages</div>
+    <h1 id="title">Encyclopedia</h1>
+    <div class="byline" id="subtitle">The Free Encyclopedia</div>
   </div>
   <div style="text-align:right">
-    <button class="button" id="genBtn">Generate new article</button>
+    <button class="button" id="genBtn">Random article</button>
     <div style="margin-top:6px" class="small">Click the title to copy it.</div>
   </div>
 </header>
 
 <main id="content">
-  <div class="notice">This page generates fictional, made-up articles for creative or entertainment use. None of the entries describe real people, places, or organisations unless explicitly stated.</div>
   <article id="article">
     <aside class="infobox" id="infobox">
       <img id="infobox-img" alt="placeholder image"/>
@@ -49,8 +48,8 @@
       </dl>
     </aside>
 
-    <h1 id="article-title">Press "Generate new article"</h1>
-    <p class="lead" id="lead">Each click creates a new, Wikipedia-flavored article about something that does not exist.</p>
+    <h1 id="article-title">Press "Random article"</h1>
+    <p class="lead" id="lead">Click the button above to generate a new article.</p>
 
     <section id="sections"></section>
 
@@ -60,33 +59,92 @@
     </section>
 
     <section id="footer-meta">
-      <p class="small">From <span id="fake-url">/wiki/—</span> · <span id="categories">Category: Fiction</span></p>
+      <p class="small">From <span id="fake-url">/wiki/—</span> · <span id="categories">Category: General</span></p>
     </section>
   </article>
 </main>
 
 <script>
-const adjectives = ["Crimson","Sable","Glacial","Verdant","Obsidian","Azure","Silent","Mossy","Iron","Luminous","Vermilion"];
-const nouns = ["Harbor","Spindle","Concord","Archipelago","Syndrome","Archive","Consulate","Cartography","Observatory","Aerodrome","Crescent","Bureau"];
-const topicTypes = ["Former micronation","Mythical creature","Abandoned technology","Lost city","Cultural practice","Philosophical movement","Subterranean species","Pseudo-religion","Alternative calendar","Experimental language"];
-const statuses = ["Legendary","Defunct","Hypothetical","Fictional","Contested","Obscure"];
+const adjectives = ["Crimson","Sable","Glacial","Verdant","Obsidian","Azure","Silent","Mossy","Iron","Luminous","Vermilion","Amber","Copper","Silver","Granite","Ethereal","Twilight","Dawn","Dusk","Storm","Frost","Ember"];
+const nouns = ["Harbor","Spindle","Concord","Archipelago","Syndrome","Archive","Consulate","Cartography","Observatory","Aerodrome","Crescent","Bureau","Peninsula","Plateau","Valley","Corridor","Delta","Basin","Ridge","Crossing","Settlement","Confluence","Enclave","Passage"];
+const topicTypes = ["Historical region","Cultural phenomenon","Geological formation","Maritime tradition","Architectural style","Philosophical movement","Ethnographic study","Ecological zone","Trading network","Linguistic group","Religious practice","Artistic movement"];
+const statuses = ["Historical","Documented","Recorded","Notable","Significant","Recognized"];
+const fakeAuthors = ["E. Farnsworth","M. A. Quill","T. Kowalski","R. Alvarado","S. N. Ilyin","J. Pemberton","H. Castellano","D. Rasmussen","K. Morgenstern","L. Vestergaard","P. Dumont","W. Ashford"];
+const fakeSources = ["Journal of Historical Geography","Annals of Cultural Studies","Proceedings of the Maritime Research Society","Quarterly Review of Regional Studies","Archive of Ethnographic Research","International Journal of Landscape Studies","Bulletin of Architectural History","Comparative Studies Quarterly"];
+const publishers = ["Oxford University Press","Cambridge University Press","Academic Press","Routledge","University of Chicago Press","Yale University Press"];
+
+const landscapes = ["fog-bound estuaries","karstic sinklands","luminescent coastal regions","limestone archipelagos","subterranean caverns ringed with mineral deposits","wind-swept plateaus","terraced hillsides","tidal marshlands","volcanic tablelands","forested uplands"];
+const objects = ["spindle-shaped ceremonial items","brass navigational instruments","painted ceremonial masks","carved tokens","glass vessels","woven textiles","stone monuments","metal ornaments"];
+const events = ["harvest festivals", "equinox ceremonies", "maritime rituals", "seasonal gatherings","commemorative observations"];
+const econ = ["trade in specialized textiles","maritime activities","exchange of carved goods","production of mineral extracts","specialized craft production","agricultural surplus trade","artisanal manufacturing"];
+const tech = ["water-powered mechanisms","architectural innovations","optical instruments","textile production methods","metallurgical techniques","agricultural terracing","preservation methods"];
+const related = ["similar regional traditions","contemporary practices","parallel developments","connected phenomena"];
+const themes = ["cultural identity","regional variation","technological development","social organization","environmental adaptation"];
+
+// Expanded section templates with more variety
 const sectionTemplates = [
-  {h:"History", p: ()=>"The origin of {T} is uncertain. Early mentions appear in {YEAR} in a treatise by {AUTHOR}, who described it as {SHORT_DESC}."},
-  {h:"Geography", p: ()=>"{T} is said to occupy an area characterized by {LANDSCAPE}. Accounts vary: some place it at {COORDS}, while others treat it as an allegory."},
-  {h:"Culture and society", p: ()=>"Practices associated with {T} included {CULTURE}. Observers noted that rites often incorporated {OBJECTS} and seasonal {EVENT}."},
-  {h:"Economy and technology", p: ()=>"Economically, {T} relied on {ECON}. Sources claim a unique technology based on {TECHNOLOGY}, now largely lost."},
-  {h:"Legacy", p: ()=>"Though now {STATUS}, {T} influenced later works, including the {RELATED} and contemporary discussions of {THEME}."},
+  {
+    h:"Origins and early history", 
+    subsections: [
+      {h:"Early evidence", p: ()=>`The earliest evidence of {T} dates to approximately {YEAR1}. Archaeological surveys conducted in the region have identified {EVIDENCE} that suggest the presence of organized communities. According to {AUTHOR1}, these findings indicate a settlement pattern consistent with {PATTERN}.`},
+      {h:"Development", p: ()=>`During the period between {YEAR2} and {YEAR3}, {T} experienced significant expansion. Historical records from this era, though fragmentary, describe {DEVELOPMENT}. The work of {AUTHOR2} has been instrumental in reconstructing this period, drawing on {SOURCE_TYPE}.`}
+    ]
+  },
+  {
+    h:"Geography and environment",
+    subsections: [
+      {h:"Physical characteristics", p: ()=>`{T} is characterized by {LANDSCAPE}. The region encompasses an area of approximately {AREA} square kilometers. Topographical surveys place it at {COORDS}, though historical accounts suggest the boundaries were subject to considerable variation over time.`},
+      {h:"Climate and ecology", p: ()=>`The local climate is marked by {CLIMATE}. This has influenced both the natural ecology and human settlement patterns. {AUTHOR3} notes that {ECOLOGICAL_NOTE}, which has been a defining characteristic of the region.`}
+    ]
+  },
+  {
+    h:"Cultural practices and society",
+    subsections: [
+      {h:"Social organization", p: ()=>`The social structure associated with {T} has been the subject of extensive scholarly debate. {AUTHOR4} describes a system based on {SOCIAL_SYSTEM}, while more recent interpretations by {AUTHOR5} suggest {ALTERNATIVE_VIEW}.`},
+      {h:"Ritual and ceremony", p: ()=>`Cultural practices included {CULTURE} and seasonal {EVENT}. Archaeological evidence indicates that these ceremonies incorporated {OBJECTS} and were conducted at specific locations determined by {ASTRONOMICAL_OR_GEOGRAPHICAL}.`}
+    ]
+  },
+  {
+    h:"Economic systems",
+    subsections: [
+      {h:"Trade and commerce", p: ()=>`The economy was primarily based on {ECON}. Trade routes extended to neighboring regions, with evidence of exchange networks documented as far as {DISTANCE}. {AUTHOR6} has traced these connections through analysis of {TRADE_EVIDENCE}.`},
+      {h:"Technology and production", p: ()=>`Technological innovations included {TECHNOLOGY}, which represented significant advances for the period. The production methods were documented by early observers, though the precise techniques were {PRESERVATION_STATE}.`}
+    ]
+  },
+  {
+    h:"Historical significance and legacy",
+    subsections: [
+      {h:"Contemporary understanding", p: ()=>`Modern scholarship on {T} has evolved considerably since initial studies in the {STUDY_PERIOD}. {AUTHOR7} argues that {ARGUMENT}, while others maintain that {COUNTER_ARGUMENT}.`},
+      {h:"Influence and connections", p: ()=>`The influence of {T} can be traced in {RELATED}, as well as in contemporary discussions of {THEME}. Recent archaeological and historical work continues to reveal new dimensions of its significance in the broader regional context.`}
+    ]
+  },
+  {
+    h:"Archaeological and historical research",
+    subsections: [
+      {h:"Excavations and surveys", p: ()=>`Systematic archaeological investigation of {T} began in {YEAR4}. Major excavations conducted by {AUTHOR8} uncovered {FINDINGS}, providing important evidence for {HISTORICAL_QUESTION}.`},
+      {h:"Documentary sources", p: ()=>`Written records relating to {T} are preserved in various archives. These include {DOCUMENT_TYPES}, many of which were catalogued by {AUTHOR9}. The interpretation of these sources remains an active area of research.`}
+    ]
+  }
 ];
 
-const fakeAuthors = ["E. Farnsworth","M. A. Quill","Journal of Imaginary Studies","T. Kowalski","R. Alvarado","S. N. Ilyin"];
-const fakeSources = ["Proceedings of the Pseudohistorical Society","Annals of Alternate Cartography","Chronicle of Obsolete Sciences","Proceedings of the League of Lost Places","Varia Ficta"];
-const landscapes = ["fog-bound estuaries","karstic sinklands","luminescent tundra","limestone archipelagos","subterranean caverns ringed with crystals"];
-const objects = ["spindle-shaped charms","brass astrolabes","painted masks","ivory talismans","glass orbs"];
-const events = ["harvest festivals", "equinox ceremonies", "sea-singing rituals", "kinship fasts"];
-const econ = ["trade in salt-encrusted textiles","maritime foraging","barter in carved bone tokens","export of luminescent algae","specialized shipbuilding"];
-const tech = ["oscillating waterwheels","magnetically-stabilized lattices","silvered optics","compressed-air looms","runic compilers"];
-const related = ["the Atlas of Lost Isles","the Twelve Fables of the North","the Fringe Lexicon"];
-const themes = ["identity and place", "technological obsolescence", "ritualized memory"];
+const evidenceTypes = ["structural foundations","ceramic fragments","tool assemblages","organic remains","modified landscapes"];
+const patterns = ["seasonal occupation","permanent settlement","trading posts","ceremonial centers","agricultural communities"];
+const developments = ["territorial expansion","cultural consolidation","economic specialization","architectural innovation","population growth"];
+const sourceTypes = ["archaeological evidence","historical manuscripts","oral traditions","material culture","architectural remains"];
+const climateTypes = ["seasonal precipitation patterns","temperature variations","maritime influences","continental effects","microclimatic conditions"];
+const ecologicalNotes = ["the vegetation supported diverse fauna","seasonal migrations affected settlement patterns","resource availability varied significantly","the landscape has undergone substantial changes","traditional land use practices shaped the environment"];
+const socialSystems = ["kinship networks","hierarchical organization","communal governance","specialized roles","territorial divisions"];
+const alternativeViews = ["more fluid social boundaries","greater regional integration","evidence of earlier development","different patterns of authority","more complex exchange networks"];
+const astronomicalOrGeographical = ["solar alignments","topographic features","seasonal changes","celestial observations","geographical markers"];
+const distances = ["400 kilometers","several hundred kilometers","the adjacent coastal regions","inland trading centers","distant port settlements"];
+const tradeEvidence = ["material distributions","stylistic similarities","written accounts","chemical signatures","architectural parallels"];
+const preservationStates = ["partially preserved in later accounts","lost to subsequent changes","maintained in localized traditions","documented only fragmentarily","subject to considerable speculation"];
+const studyPeriods = ["early nineteenth century","late Victorian period","interwar years","postwar decades","1970s and 1980s"];
+const arguments = ["previous interpretations overstated its extent","its influence was more regional than previously thought","new evidence suggests earlier origins","the cultural significance has been underappreciated","environmental factors played a larger role"];
+const counterArguments = ["traditional interpretations remain valid","the evidence supports established chronologies","external influences were minimal","internal developments were primary","the scale was more limited"];
+const findings = ["stratified deposits","architectural remains","artifact assemblages","evidence of specialized activities","indications of long-term occupation"];
+const historicalQuestions = ["chronological sequences","cultural affiliations","economic organization","social structures","environmental interactions"];
+const documentTypes = ["administrative records","travelers' accounts","commercial registers","religious texts","personal correspondence"];
 
 function rand(arr){return arr[Math.floor(Math.random()*arr.length)];}
 function yearBetween(a,b){return Math.floor(Math.random()*(b-a+1))+a;}
@@ -106,24 +164,46 @@ function generateCoords(){
 function makeInfobox(type, status){
   document.getElementById('info-type').textContent = type;
   document.getElementById('info-status').textContent = status;
-  document.getElementById('info-date').textContent = yearBetween(1100, 1980);
+  document.getElementById('info-date').textContent = yearBetween(800, 1850);
   document.getElementById('info-coords').textContent = generateCoords();
-  // generate a simple SVG placeholder
   const svg = `<svg xmlns='http://www.w3.org/2000/svg' width='640' height='360' viewBox='0 0 640 360'><rect width='100%' height='100%' fill='#ddd'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' font-family='sans-serif' font-size='28' fill='#666'>${type}</text></svg>`;
   const img = document.getElementById('infobox-img');
   img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
 }
 
 function makeLead(T,type,status){
-  const year = yearBetween(1200,1950);
-  const desc = rand(["a maritime confederation of small isles","an ersatz taxonomy for luminous fungi","a ritual calendar observed by coastal communities","an artisanal method of map-making","a communal workshop for clockworks"]);
-  return `${T} is described in modern pseudo-historical literature as ${desc}. It is classified as ${type.toLowerCase()} and is generally considered ${status.toLowerCase()}. Contemporary scholars treat accounts of ${T} with caution, noting a mixture of historical detail and later myth-making.`;
+  const year1 = yearBetween(900,1400);
+  const year2 = yearBetween(year1+50,1900);
+  const descriptions = [
+    `a historically documented region located in what is now the ${rand(["northern","southern","eastern","western","central"])} part of ${rand(["the Mediterranean basin","Central Europe","the Baltic region","the Caucasus","Southeast Asia"])}`,
+    `a cultural and geographical designation used to describe an area characterized by ${rand(landscapes)}`,
+    `a term applied to a series of settlements and associated cultural practices found in ${rand(["coastal regions","highland zones","river valleys","island groups","transitional zones"])}`,
+    `a historical phenomenon encompassing both geographical and cultural dimensions, primarily associated with the period between ${year1} and ${year2}`,
+    `a designation for a complex of archaeological sites and cultural remains located in an area characterized by ${rand(landscapes)}`
+  ];
+  
+  return `<strong>${T}</strong> refers to ${rand(descriptions)}. The term has been used in scholarly literature since the ${rand(["early nineteenth century","mid-nineteenth century","late nineteenth century","early twentieth century"])}, though its precise definition and geographical extent remain subjects of ongoing discussion. ${rand([
+    `Archaeological and historical evidence indicates human activity in the region from at least the ${yearBetween(500,1200)}s.`,
+    `The cultural significance of ${T} has been recognized in studies of ${rand(themes)}.`,
+    `Research on ${T} draws on multiple disciplines including archaeology, history, and cultural studies.`,
+    `The designation encompasses both physical landscape features and associated cultural practices.`
+  ])}`;
 }
 
-function cite(n){
-  const src = rand(fakeSources);
+function cite(n, refData){
   const author = rand(fakeAuthors);
-  return `${author}, <i>${src}</i>, ${n ? n : yearBetween(1800,1950)}.`;
+  const source = rand(fakeSources);
+  const year = yearBetween(1950, 2023);
+  const publisher = rand(publishers);
+  const pages = `pp. ${yearBetween(100,500)}-${yearBetween(501,750)}`;
+  
+  const formats = [
+    `${author} (${year}). "${refData.title}". <i>${source}</i>. ${publisher}. ${pages}.`,
+    `${author}. <i>${refData.book}</i>. ${publisher}, ${year}. ${pages}.`,
+    `${author} (${year}). "${refData.article}". <i>${source}</i>, Vol. ${yearBetween(10,80)}, No. ${yearBetween(1,4)}. ${pages}.`
+  ];
+  
+  return rand(formats);
 }
 
 function generateArticle(){
@@ -131,62 +211,128 @@ function generateArticle(){
   const type = rand(topicTypes);
   const status = rand(statuses);
   document.getElementById('article-title').textContent = T;
-  document.getElementById('title').textContent = "FakeWiki — " + T;
-  document.title = T + " — FakeWiki";
-  document.getElementById('subtitle').textContent = "Auto-generated fictional article";
+  document.getElementById('title').textContent = T + " — Encyclopedia";
+  document.title = T + " — Encyclopedia";
+  document.getElementById('subtitle').textContent = "The Free Encyclopedia";
   makeInfobox(type, status);
   document.getElementById('lead').innerHTML = makeLead(T,type,status);
-  // build sections
+  
+  // Build sections with subsections
   const sectionsEl = document.getElementById('sections');
   sectionsEl.innerHTML = '';
   const used = new Set();
-  const numSections = Math.floor(Math.random()*3)+2;
+  const numSections = Math.floor(Math.random()*3)+3; // 3-5 main sections
   let refCount = 0;
   const refs = [];
+  
   for(let i=0;i<numSections;i++){
     let tmpl = rand(sectionTemplates);
-    while(used.has(tmpl.h) && used.size < sectionTemplates.length){ tmpl = rand(sectionTemplates); }
-    used.add(tmpl.h);
-    const h = tmpl.h;
-    let p = tmpl.p();
-    // replace placeholders
-    p = p.replace(/\{T\}/g, T)
-         .replace(/\{YEAR\}/g, yearBetween(1500,1900))
-         .replace(/\{AUTHOR\}/g, rand(fakeAuthors))
-         .replace(/\{SHORT_DESC\}/g, rand(["an ephemeral confederation","a symbolic totem","a proto-industrial craft","a migratory polity"]))
-         .replace(/\{LANDSCAPE\}/g, rand(landscapes))
-         .replace(/\{COORDS\}/g, generateCoords())
-         .replace(/\{CULTURE\}/g, rand(["seasonal weaving","sea-song liturgies","communal oral mapping","mask-making guilds"]))
-         .replace(/\{OBJECTS\}/g, rand(objects))
-         .replace(/\{EVENT\}/g, rand(events))
-         .replace(/\{ECON\}/g, rand(econ))
-         .replace(/\{TECHNOLOGY\}/g, rand(tech))
-         .replace(/\{STATUS\}/g, status.toLowerCase())
-         .replace(/\{RELATED\}/g, rand(related))
-         .replace(/\{THEME\}/g, rand(themes));
-    // insert inline citation(s)
-    const nCites = Math.floor(Math.random()*2)+1;
-    let citeIndices = [];
-    for(let c=0;c<nCites;c++){
-      refCount++;
-      refs.push(cite(refCount));
-      citeIndices.push(refCount);
+    while(used.has(tmpl.h) && used.size < sectionTemplates.length){ 
+      tmpl = rand(sectionTemplates); 
     }
-    p = p + " " + citeIndices.map(ix=>`<a class='citation-ref' href='#ref-${ix}'>[${ix}]</a>`).join(' ');
-    const sectionHTML = `<h2>${h}</h2><p>${p}</p>`;
-    sectionsEl.insertAdjacentHTML('beforeend', sectionHTML);
+    used.add(tmpl.h);
+    
+    const sectionDiv = document.createElement('div');
+    const h2 = document.createElement('h2');
+    h2.textContent = tmpl.h;
+    sectionDiv.appendChild(h2);
+    
+    // Add subsections
+    const numSubsections = Math.min(tmpl.subsections.length, Math.floor(Math.random()*2)+1); // 1-2 subsections
+    const subsectionsToUse = tmpl.subsections.sort(() => Math.random() - 0.5).slice(0, numSubsections);
+    
+    subsectionsToUse.forEach(sub => {
+      const h3 = document.createElement('h3');
+      h3.textContent = sub.h;
+      sectionDiv.appendChild(h3);
+      
+      let p = sub.p();
+      
+      // Replace all placeholders
+      const year1 = yearBetween(800,1200);
+      const year2 = yearBetween(1200,1600);
+      const year3 = yearBetween(1600,1900);
+      const year4 = yearBetween(1850,1950);
+      
+      p = p.replace(/\{T\}/g, T)
+           .replace(/\{YEAR1\}/g, year1)
+           .replace(/\{YEAR2\}/g, year2)
+           .replace(/\{YEAR3\}/g, year3)
+           .replace(/\{YEAR4\}/g, year4)
+           .replace(/\{YEAR\}/g, yearBetween(1000,1800))
+           .replace(/\{AUTHOR1\}/g, rand(fakeAuthors))
+           .replace(/\{AUTHOR2\}/g, rand(fakeAuthors))
+           .replace(/\{AUTHOR3\}/g, rand(fakeAuthors))
+           .replace(/\{AUTHOR4\}/g, rand(fakeAuthors))
+           .replace(/\{AUTHOR5\}/g, rand(fakeAuthors))
+           .replace(/\{AUTHOR6\}/g, rand(fakeAuthors))
+           .replace(/\{AUTHOR7\}/g, rand(fakeAuthors))
+           .replace(/\{AUTHOR8\}/g, rand(fakeAuthors))
+           .replace(/\{AUTHOR9\}/g, rand(fakeAuthors))
+           .replace(/\{EVIDENCE\}/g, rand(evidenceTypes))
+           .replace(/\{PATTERN\}/g, rand(patterns))
+           .replace(/\{DEVELOPMENT\}/g, rand(developments))
+           .replace(/\{SOURCE_TYPE\}/g, rand(sourceTypes))
+           .replace(/\{LANDSCAPE\}/g, rand(landscapes))
+           .replace(/\{AREA\}/g, yearBetween(500,5000))
+           .replace(/\{COORDS\}/g, generateCoords())
+           .replace(/\{CLIMATE\}/g, rand(climateTypes))
+           .replace(/\{ECOLOGICAL_NOTE\}/g, rand(ecologicalNotes))
+           .replace(/\{SOCIAL_SYSTEM\}/g, rand(socialSystems))
+           .replace(/\{ALTERNATIVE_VIEW\}/g, rand(alternativeViews))
+           .replace(/\{CULTURE\}/g, rand(["communal gatherings","ritual observations","seasonal ceremonies","craft production","oral traditions"]))
+           .replace(/\{OBJECTS\}/g, rand(objects))
+           .replace(/\{EVENT\}/g, rand(events))
+           .replace(/\{ASTRONOMICAL_OR_GEOGRAPHICAL\}/g, rand(astronomicalOrGeographical))
+           .replace(/\{ECON\}/g, rand(econ))
+           .replace(/\{DISTANCE\}/g, rand(distances))
+           .replace(/\{TRADE_EVIDENCE\}/g, rand(tradeEvidence))
+           .replace(/\{TECHNOLOGY\}/g, rand(tech))
+           .replace(/\{PRESERVATION_STATE\}/g, rand(preservationStates))
+           .replace(/\{STUDY_PERIOD\}/g, rand(studyPeriods))
+           .replace(/\{ARGUMENT\}/g, rand(arguments))
+           .replace(/\{COUNTER_ARGUMENT\}/g, rand(counterArguments))
+           .replace(/\{FINDINGS\}/g, rand(findings))
+           .replace(/\{HISTORICAL_QUESTION\}/g, rand(historicalQuestions))
+           .replace(/\{DOCUMENT_TYPES\}/g, rand(documentTypes))
+           .replace(/\{RELATED\}/g, rand(related))
+           .replace(/\{THEME\}/g, rand(themes));
+      
+      // Add citations (1-3 per paragraph)
+      const nCites = Math.floor(Math.random()*3)+1;
+      let citeIndices = [];
+      for(let c=0;c<nCites;c++){
+        refCount++;
+        const refData = {
+          title: `${rand(["Studies in","Perspectives on","Research into","Analysis of","Investigations of"])} ${T}`,
+          book: `${T}: ${rand(["History and Context","A Regional Study","Archaeological Perspectives","Cultural Dimensions","Historical Development"])}`,
+          article: `${rand(["New evidence from","Reassessing","Understanding","The significance of","Approaches to"])} ${T}`
+        };
+        refs.push(cite(refCount, refData));
+        citeIndices.push(refCount);
+      }
+      p = p + " " + citeIndices.map(ix=>`<a class='citation-ref' href='#ref-${ix}'>[${ix}]</a>`).join(' ');
+      
+      const para = document.createElement('p');
+      para.innerHTML = p;
+      sectionDiv.appendChild(para);
+    });
+    
+    sectionsEl.appendChild(sectionDiv);
   }
-  // build references
+  
+  // Build references
   const refList = document.getElementById('ref-list');
   refList.innerHTML = refs.map((r,i)=>`<li id='ref-${i+1}'>${r}</li>`).join('');
-  // categories and url
+  
+  // Categories and url
   document.getElementById('fake-url').textContent = '/wiki/' + T.replace(/\s+/g,'_');
-  document.getElementById('categories').textContent = 'Category:' + rand(["Fictional places","Pseudo-history","Imaginary cultures","Speculative taxonomy"]);
-  // clear and update scroll to top
+  document.getElementById('categories').textContent = 'Category: ' + rand(["Historical geography","Cultural studies","Archaeological sites","Regional history","Ethnography","Historical research"]);
+  
   window.scrollTo({top:0,behavior:'smooth'});
 }
 
-// copy title on click
+// Copy title on click
 document.getElementById('article-title').addEventListener('click',()=>{
   const t = document.getElementById('article-title').textContent;
   navigator.clipboard?.writeText(t).then(()=>{
@@ -196,7 +342,7 @@ document.getElementById('article-title').addEventListener('click',()=>{
 
 document.getElementById('genBtn').addEventListener('click',generateArticle);
 
-// init with one article
+// Init with one article
 generateArticle();
 </script>
 </body>
