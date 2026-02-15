@@ -1,94 +1,116 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Encyclopedia Generator</title>
-<style>
-  body {
-    font-family: Georgia, "Times New Roman", serif;
-    background: #f8f9fa;
-    margin: 0;
-    padding: 2rem;
-    color: #202122;
-  }
-  #box {
-    max-width: 820px;
-    margin: auto;
-    background: white;
-    padding: 2rem;
-    border: 1px solid #a2a9b1;
-  }
-  h1 {
-    border-bottom: 1px solid #a2a9b1;
-    padding-bottom: 0.3rem;
-  }
-  button {
-    margin-top: 1.5rem;
-    padding: 0.6rem 1rem;
-    font-size: 1rem;
-  }
-</style>
-</head>
-
-<body>
-<div id="box">
-  <h1 id="title"></h1>
-  <p id="lead"></p>
-  <h2>History</h2>
-  <p id="history"></p>
-  <h2>Characteristics</h2>
-  <p id="traits"></p>
-  <h2>Cultural Impact</h2>
-  <p id="impact"></p>
-
-  <button onclick="generate()">Generate new article</button>
-</div>
-
 <script>
-function pick(arr) {
-  return arr[Math.floor(Math.random() * arr.length)];
+const adjectives = ["Crimson","Sable","Glacial","Verdant","Obsidian","Azure","Silent","Mossy","Iron","Luminous","Vermilion","Amber","Ashen","Cerulean","Umbral"];
+const nouns = ["Harbor","Spindle","Concord","Archipelago","Syndrome","Archive","Consulate","Cartography","Observatory","Aerodrome","Crescent","Bureau","Dominion","Protocol","Doctrine"];
+const topicTypes = ["micronation","creature","technology","city","cultural tradition","philosophical school","subterranean species","religious movement","calendar system","constructed language"];
+const statuses = ["active","defunct","suppressed","reclassified","lost","rediscovered","contested"];
+
+const sectionTemplates = [
+  {h:"History", p: ()=>"The earliest references to {T} appear in records dating to {YEAR}, where it is described by {AUTHOR} as {SHORT_DESC}. Over the following centuries, {T} underwent periods of expansion, internal reform, and external challenge, shaping its modern legacy."},
+  {h:"Geography", p: ()=>"{T} is traditionally associated with a region characterized by {LANDSCAPE}. Although modern surveys place its core near {COORDS}, historical sources vary considerably in their descriptions."},
+  {h:"Political structure", p: ()=>"Governance within {T} evolved from a loose confederation into a formalized administrative system. Authority was typically vested in councils responsible for {GOV_ROLE}."},
+  {h:"Culture and society", p: ()=>"Daily life in {T} emphasized {CULTURE}. Community ceremonies frequently employed {OBJECTS} during {EVENT}, reinforcing collective identity."},
+  {h:"Economy", p: ()=>"The economy of {T} historically relied on {ECON}. Trade networks connected it to neighboring regions, allowing the exchange of raw materials, textiles, and symbolic goods."},
+  {h:"Science and technology", p: ()=>"Technological development centered on {TECHNOLOGY}. Artifacts recovered from archives suggest a sophisticated understanding of mechanics and material science."},
+  {h:"Language and writing", p: ()=>"Texts linked to {T} were written in a script notable for {SCRIPT}. Linguists have traced its grammar to earlier regional dialects."},
+  {h:"Legacy", p: ()=>"Although now {STATUS}, {T} continues to influence contemporary scholarship, particularly in discussions of {THEME}."}
+];
+
+const fakeAuthors = ["E. Farnsworth","M. A. Quill","T. Kowalski","R. Alvarado","S. N. Ilyin","H. Vermeer","L. Okafor"];
+const fakeSources = ["Journal of Comparative Antiquities","Annals of Cultural Geography","Proceedings of the Historical Review","Studies in Obscure Civilizations","Archivum Mundi"];
+
+const landscapes = ["fog-bound estuaries","karstic highlands","luminescent tundra","limestone archipelagos","subterranean crystal caverns","wind-scoured plateaus"];
+const objects = ["spindle-shaped charms","brass astrolabes","painted masks","ivory talismans","glass orbs","engraved stone seals"];
+const events = ["harvest festivals","equinox ceremonies","processional rites","sea-singing rituals","communal fasts"];
+const econ = ["salt-textile trade","maritime foraging","barter in carved tokens","algae cultivation","specialized shipbuilding"];
+const tech = ["oscillating waterwheels","magnetically-stabilized lattices","silvered optics","compressed-air looms","runic compilers"];
+const related = ["the Atlas of Lost Isles","the Fringe Lexicon","the Northern Codices"];
+const themes = ["identity and place","ritual memory","technological transition","cultural resilience"];
+const scripts = ["angular ligatures","vertical inscription","interwoven glyphs","diacritic-rich forms"];
+const govRoles = ["resource allocation","ritual law","foreign relations","infrastructure oversight"];
+
+function rand(arr){return arr[Math.floor(Math.random()*arr.length)];}
+function yearBetween(a,b){return Math.floor(Math.random()*(b-a+1))+a;}
+
+function generateTitle(){
+  return `${rand(adjectives)} ${rand(nouns)}`;
 }
 
-function sentence() {
-  const starts = ["The", "This", "In many cases, the", "Historically, the", "Scholars note that the"];
-  const mids = ["phenomenon", "structure", "tradition", "device", "system", "practice"];
-  const ends = [
-    "has been widely misunderstood.",
-    "remains poorly documented.",
-    "plays a central role in its field.",
-    "has generated considerable debate.",
-    "continues to shape modern interpretations."
-  ];
-  return pick(starts) + " " + pick(mids) + " " + pick(ends);
+function generateCoords(){
+  const lat = (Math.random()*170-85).toFixed(2);
+  const lon = (Math.random()*360-180).toFixed(2);
+  return `${lat}°N, ${Math.abs(lon)}°${lon<0? "W":"E"}`;
 }
 
-function paragraph(n) {
-  let p = [];
-  for (let i = 0; i < n; i++) p.push(sentence());
-  return p.join(" ");
+function cite(){
+  return `${rand(fakeAuthors)}, <i>${rand(fakeSources)}</i>, ${yearBetween(1820,1995)}.`;
 }
 
-function generate() {
-  const titles = [
-    "Kardevian Lattices",
-    "The Rhopex Index",
-    "Silent Meridian Theory",
-    "Orthian Protocol",
-    "Zerenth Drift",
-    "Palmaric Alignment",
-    "Heliox Paradox"
-  ];
+function generateArticle(){
+  const T = generateTitle();
+  const type = rand(topicTypes);
+  const status = rand(statuses);
 
-  document.getElementById("title").textContent = pick(titles);
-  document.getElementById("lead").textContent = paragraph(5);
-  document.getElementById("history").textContent = paragraph(7);
-  document.getElementById("traits").textContent = paragraph(7);
-  document.getElementById("impact").textContent = paragraph(7);
+  document.getElementById('article-title').textContent = T;
+  document.getElementById('title').textContent = "FakeWiki — " + T;
+  document.title = T + " — Encyclopedia";
+
+  document.getElementById('info-type').textContent = type;
+  document.getElementById('info-status').textContent = status;
+  document.getElementById('info-date').textContent = yearBetween(900, 1950);
+  document.getElementById('info-coords').textContent = generateCoords();
+
+  const svg = `<svg xmlns='http://www.w3.org/2000/svg' width='640' height='360'><rect width='100%' height='100%' fill='#ddd'/><text x='50%' y='50%' text-anchor='middle' dominant-baseline='middle' font-size='26' fill='#666'>${type}</text></svg>`;
+  document.getElementById('infobox-img').src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+
+  document.getElementById('lead').innerHTML =
+    `${T} is a ${type} historically associated with complex social, political, and technological systems. First recorded in ${yearBetween(1100,1600)}, it has since become the subject of sustained scholarly attention across multiple disciplines.`;
+
+  const sectionsEl = document.getElementById('sections');
+  sectionsEl.innerHTML = "";
+
+  const used = new Set();
+  const numSections = 5 + Math.floor(Math.random()*3); // 5–7 sections
+
+  const refs = [];
+  for(let i=0;i<numSections;i++){
+    let tmpl = rand(sectionTemplates);
+    while(used.has(tmpl.h)) tmpl = rand(sectionTemplates);
+    used.add(tmpl.h);
+
+    let p = tmpl.p()
+      .replace(/\{T\}/g,T)
+      .replace(/\{YEAR\}/g,yearBetween(1200,1800))
+      .replace(/\{AUTHOR\}/g,rand(fakeAuthors))
+      .replace(/\{SHORT_DESC\}/g,rand(["a symbolic polity","a proto-industrial system","a ritual network","a migratory culture"]))
+      .replace(/\{LANDSCAPE\}/g,rand(landscapes))
+      .replace(/\{COORDS\}/g,generateCoords())
+      .replace(/\{CULTURE\}/g,rand(["communal storytelling","ceremonial weaving","oral cartography"]))
+      .replace(/\{OBJECTS\}/g,rand(objects))
+      .replace(/\{EVENT\}/g,rand(events))
+      .replace(/\{ECON\}/g,rand(econ))
+      .replace(/\{TECHNOLOGY\}/g,rand(tech))
+      .replace(/\{SCRIPT\}/g,rand(scripts))
+      .replace(/\{GOV_ROLE\}/g,rand(govRoles))
+      .replace(/\{STATUS\}/g,status)
+      .replace(/\{THEME\}/g,rand(themes));
+
+    const cites = [cite(), cite()];
+    const idx1 = refs.push(cites[0]);
+    const idx2 = refs.push(cites[1]);
+
+    p += ` <a class='citation-ref' href='#ref-${idx1}'>[${idx1}]</a> <a class='citation-ref' href='#ref-${idx2}'>[${idx2}]</a>`;
+
+    sectionsEl.insertAdjacentHTML("beforeend", `<h2>${tmpl.h}</h2><p>${p}</p>`);
+  }
+
+  const refList = document.getElementById('ref-list');
+  refList.innerHTML = refs.map((r,i)=>`<li id='ref-${i+1}'>${r}</li>`).join("");
+
+  document.getElementById('fake-url').textContent = '/wiki/' + T.replace(/\s+/g,'_');
+  document.getElementById('categories').textContent = 'Category:' + rand(["History","Culture","Geography","Technology"]);
+  window.scrollTo({top:0,behavior:'smooth'});
 }
 
-// generate first article on load
-generate();
+document.getElementById('genBtn').addEventListener('click',generateArticle);
+generateArticle();
 </script>
-</body>
-</html>
